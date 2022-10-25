@@ -1,0 +1,5 @@
+1,mouse,50.0,3
+1,keyboard,730.0,1
+2,studyTable,1000.0,2
+2,laptop,20000.0,2
+3,Hard DISK,790.0,2
