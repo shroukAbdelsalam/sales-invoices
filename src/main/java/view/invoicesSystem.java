@@ -7,16 +7,9 @@ package view;
 import controller.controller;
 import model.*;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 /**
  *
@@ -25,14 +18,17 @@ import javax.swing.event.ListSelectionListener;
 public class invoicesSystem extends javax.swing.JFrame {
 
     controller con;
+    FileOperations f;
     int selectedRow;
     int SelectedRowS;
+    int countRowOfNewTable=0;
 
     /**
      * Creates new form invoicesSystem
      */
     public invoicesSystem() {
         con = new controller();
+        f=new FileOperations();
         initComponents();
 
     }
@@ -225,6 +221,7 @@ public class invoicesSystem extends javax.swing.JFrame {
 
         setJMenuBar(jMenuBar1);
 
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -348,10 +345,11 @@ public class invoicesSystem extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
 
-    void LoadFile(){
+   public void LoadFilee(){
         String [] data=new String[4];
         DefaultTableModel model=(DefaultTableModel)summaryTable.getModel();
-        List<invoiceSummary> Summary = con.loadSummary();
+        List<InvoiceHeader> Summary = f.readFileHeader();
+        // List<InvoiceHeader> Summary = con.loadSummary();
         for(int i=0;i<Summary.size();i++){
             data[0]= String.valueOf(Summary.get(i).getBillNumber());
             data[1]=Summary.get(i).getDate();
@@ -364,7 +362,8 @@ public class invoicesSystem extends javax.swing.JFrame {
         // TODO add your handling code here:
         String [] data=new String[4];
         DefaultTableModel model=(DefaultTableModel)summaryTable.getModel();
-        List<invoiceSummary> Summary = con.loadSummary();
+        List<InvoiceHeader> Summary = f.readFileHeader();
+       // List<InvoiceHeader> Summary = con.loadSummary();
         for(int i=0;i<Summary.size();i++){
             data[0]= String.valueOf(Summary.get(i).getBillNumber());
             data[1]=Summary.get(i).getDate();
@@ -381,15 +380,12 @@ public class invoicesSystem extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             DefaultTableModel model = (DefaultTableModel) summaryTable.getModel();
+            String id=summaryTable.getValueAt(SelectedRowS, 0).toString();
+           f.DeleteBillByIdHead(id);
+            //LoadFile();
             model.removeRow(SelectedRowS);
             summaryTable.addNotify();
-            invoiceSummary in = new invoiceSummary();
-            in.setBillNumber(summaryTable.getValueAt(SelectedRowS, 0).toString());
-            in.setCustomerName(summaryTable.getValueAt(SelectedRowS, 2).toString());
-            in.setDate(summaryTable.getValueAt(SelectedRowS, 1).toString());
-            in.setBill_Total(Double.parseDouble(summaryTable.getValueAt(SelectedRowS, 3).toString()));
-            con.deleteSummaryItem(in);
-            LoadFile();
+            LoadFilee();
         }
         catch (Exception e){}
         
@@ -408,7 +404,8 @@ public class invoicesSystem extends javax.swing.JFrame {
 
     private void summaryTableMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_summaryTableMousePressed
         // TODO add your handling code here:
-        controller con=new controller();
+        //controller con=new controller();
+        double bilTot=0.0;
         DefaultTableModel model=(DefaultTableModel)dataTable.getModel();
         model.getDataVector().removeAllElements();
         revalidate();
@@ -416,10 +413,10 @@ public class invoicesSystem extends javax.swing.JFrame {
         billaNumber.setText(id);
         customerName.setText(summaryTable.getValueAt(summaryTable.getSelectedRow(),2).toString());
         billDate.setText(summaryTable.getValueAt(summaryTable.getSelectedRow(),1).toString());
-        billTotal.setText(summaryTable.getValueAt(summaryTable.getSelectedRow(),3).toString());
+        //billTotal.setText(summaryTable.getValueAt(summaryTable.getSelectedRow(),3).toString());
         //System.out.println("id= "+id);
         dataTable.repaint();
-        List<invoiceData> selectedbBills=con.loadSeletcedBills(id);
+        List<InvoiceLines> selectedbBills=f.readFileLinesById(id);
         String [] data=new String[5];
 
         for(int i=0;i<selectedbBills.size();i++){
@@ -428,9 +425,11 @@ public class invoicesSystem extends javax.swing.JFrame {
             data[2]=selectedbBills.get(i).getPrice().toString();
             data[3]= String.valueOf(selectedbBills.get(i).getCount());
             data[4]= String.valueOf(selectedbBills.get(i).getCount()*selectedbBills.get(i).getPrice());
+            bilTot+=selectedbBills.get(i).getCount()*selectedbBills.get(i).getPrice();
 
             model.addRow(data);
 
+billTotal.setText(String.valueOf(bilTot));
         }
 
 
@@ -448,28 +447,41 @@ public class invoicesSystem extends javax.swing.JFrame {
     private void SaveNewInvoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveNewInvoiceActionPerformed
         // TODO add your handling code here:
         double total=0.0;
-        List<invoiceData>billData = new ArrayList<invoiceData>() ;
-        invoiceSummary billSummary= new invoiceSummary();
-        billSummary.setCustomerName(iCustomerName.getText());
-        billSummary.setDate(iBillDate.getText());
-        billSummary.setBillNumber(iBillNumber.getText());
+        ArrayList<InvoiceLines>billLines = new ArrayList<InvoiceLines>() ;
+        InvoiceHeader billHeader= new InvoiceHeader();
+        billHeader.setCustomerName(iCustomerName.getText());
+        billHeader.setDate(iBillDate.getText());
+        billHeader.setBillNumber(iBillNumber.getText());
         DefaultTableModel model=(DefaultTableModel)createNewTable.getModel();
 
-        for(int i=0;i<model.getRowCount();i++){
-//            if(createNewTable.getValueAt(i,1).toString()!=null||createNewTable.getValueAt(i,2).toString()!=null
-//                    || iBillNumber.getText().toString()!=null){
+        for(int i=0;i<createNewTable.getRowCount();i++){
+            InvoiceLines in= new InvoiceLines();
             total+=Double.parseDouble(createNewTable.getValueAt(i,4).toString());
-            System.out.println(total);
-            billData.get(i).setBill(iBillNumber.getText());
-            billData.get(i).setProductName(createNewTable.getValueAt(i,1).toString());
-            billData.get(i).setPrice(Double.parseDouble(createNewTable.getValueAt(i,2).toString()));
-            billData.get(i).setCount(Integer.parseInt(createNewTable.getValueAt(i,3).toString()));
+            in.setBill(iBillNumber.getText().toString());
+           in.setProductName(createNewTable.getValueAt(i,1).toString());
+           in.setPrice(Double.parseDouble(createNewTable.getValueAt(i,2).toString()));
+           in.setCount(Integer.parseInt(createNewTable.getValueAt(i,3).toString()));
+           billLines.add(in);
    //     }
     }
         ltotal.setText(String.valueOf(total));
-        con.saveNewBill(billData,billSummary);
+        f.writeFileLines(billLines);
+       f.writeFileHeader(billHeader);
+       iBillNumber.setText("");
+       iCustomerName.setText("");
+       iBillDate.setText("");
+        for(int i=0;i<createNewTable.getRowCount();i++){
+            for(int j=0;j<5;j++){
+                System.out.println("col: "+createNewTable.getValueAt(i,j));
+                createNewTable.setValueAt("",i,j);
+                System.out.println("col2: "+createNewTable.getValueAt(i,j));
+            }
 
 
+        }
+        model.fireTableDataChanged();
+        createNewTable.revalidate();
+        createNewTable.repaint();
 
     }//GEN-LAST:event_SaveNewInvoiceActionPerformed
 
@@ -477,6 +489,7 @@ public class invoicesSystem extends javax.swing.JFrame {
         // TODO add your handling code here:
         DefaultTableModel model=(DefaultTableModel)createNewTable.getModel();
         model.addRow(new Object[]{null,null,null,null,null});
+        countRowOfNewTable++;
 //        DefaultTableModel model=(DefaultTableModel)dataTable.getModel();
 //        model.setRowCount(0);
 //        dataTable.addNotify();
@@ -489,12 +502,8 @@ public class invoicesSystem extends javax.swing.JFrame {
         DefaultTableModel model=(DefaultTableModel)dataTable.getModel();
         model.removeRow(selectedRow);
         dataTable.addNotify();
-        invoiceData in= new invoiceData();
-        in.setPrice(Double.parseDouble(dataTable.getValueAt(selectedRow,2).toString()));
-        in.setCount(Integer.parseInt(dataTable.getValueAt(selectedRow,3).toString()));
-        in.setProductName(dataTable.getValueAt(selectedRow,1).toString());
-        in.setBill(billaNumber.getText());
-        con.deleteItemf(in);
+        f.DeleteLinesItems(billaNumber.getText());
+        //LoadFilee();
 
         }
         //dataTable.repaint();

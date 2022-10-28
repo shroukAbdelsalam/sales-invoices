@@ -4,12 +4,11 @@
  */
 package controller;
 
-import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import model.invoiceSummary;
-import model.invoiceData;
+import model.InvoiceHeader;
+import model.InvoiceLines;
 /**
  *
  * @author Laptop Market
@@ -42,14 +41,14 @@ public class controller {
 
     }
 
-    public List<invoiceSummary> loadSummary() {
-        List<invoiceSummary> readedData = new ArrayList<invoiceSummary>();
+    public List<InvoiceHeader> loadSummary() {
+        List<InvoiceHeader> readedData = new ArrayList<InvoiceHeader>();
         String s = "";
         try {
 
             while ((s = brSummary.readLine()) != null) {
                 String[] data = s.split(",");
-                invoiceSummary iss = new invoiceSummary();
+                InvoiceHeader iss = new InvoiceHeader();
                 iss.setBillNumber(data[0]);
                 iss.setCustomerName(data[2]);
                 iss.setDate(data[1]);
@@ -63,8 +62,8 @@ public class controller {
         return readedData;
     }
 
-    public List<invoiceData> loadSeletcedBills(String id) {
-        List<invoiceData> loadedBills = new ArrayList<invoiceData>();
+    public List<InvoiceLines> loadSeletcedBills(String id) {
+        List<InvoiceLines> loadedBills = new ArrayList<InvoiceLines>();
 
         String s = "";
         try {
@@ -73,7 +72,7 @@ public class controller {
                 String[] data = s.split(",");
 
                 if (data[0].equals(id)) {
-                    invoiceData iss = new invoiceData();
+                    InvoiceLines iss = new InvoiceLines();
                     iss.setCount(Integer.parseInt(data[3]));
                     iss.setPrice(Double.parseDouble(data[2]));
                     iss.setProductName(data[1]);
@@ -89,7 +88,7 @@ public class controller {
         return loadedBills;
     }
 
-    public void deleteItemf(invoiceData bill) {
+    public void deleteItemf(InvoiceLines bill) {
         String compat = bill.tostring2();
         System.out.println(compat);
         List<String> FileData = new ArrayList<String>();
@@ -120,7 +119,7 @@ public class controller {
 
     }
 
-    public void deleteSummaryItem(invoiceSummary sum) {
+    public void deleteSummaryItem(InvoiceHeader sum) {
         String compat = sum.toString2();
         //System.out.println(compat);
         String selectedId = sum.getBillNumber();
@@ -210,7 +209,7 @@ public class controller {
         }
 
     }
-    public void saveNewItem(invoiceData d, String id, Double total) {
+    public void saveNewItem(InvoiceLines d, String id, Double total) {
         String s = d.tostring2();
         //System.out.println(s);
         try {
@@ -227,7 +226,7 @@ public class controller {
 
     }
 
-    public void saveNewBill(List<invoiceData> ind,invoiceSummary ins){
+    public void saveNewBill(List<InvoiceLines> ind, InvoiceHeader ins){
         String s="";
         try {
             PrintWriter pr = new PrintWriter(new FileWriter(path, true));
