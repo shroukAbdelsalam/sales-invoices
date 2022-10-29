@@ -13,8 +13,8 @@ public class FileOperations {
 //        //f.readFileLines();
 //        //f.ReadHeaderANDLines();
 //    }
-  String invoicHeaderPath="E:\\Software test\\java\\New Folder\\sales_invoice\\InvoiceHeader.csv";
-  String invoicLinesPath ="E:\\Software test\\java\\New Folder\\sales_invoice\\InvoiceLines.csv";
+  String invoicHeaderPath=".\\src\\main\\java\\model\\InvoiceHeader.csv";
+  String invoicLinesPath =".\\src\\main\\java\\model\\InvoiceLines.csv";
 
 
   public List<InvoiceHeader> readFileHeader() {
@@ -33,6 +33,7 @@ public class FileOperations {
               if (fields.length > 0) {
                   InvoiceHeader in = new InvoiceHeader();
                   in.setBillNumber(fields[0]);
+                  System.out.println(fields[1]);
                   in.setDate(fields[1]);
                   in.setCustomerName(fields[2]);
                   bills.add(in);
