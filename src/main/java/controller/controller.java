@@ -91,28 +91,55 @@ public class controller {
 
     public void deleteItemf(invoiceData bill) {
         String compat = bill.tostring2();
-        System.out.println(compat);
         List<String> FileData = new ArrayList<String>();
         String s = "";
+        String id="";
+        double value=0.0;
         try {
             //int i=0;
-            System.out.println(compat);
+
             while ((s = biSummary.readLine()) != null) {
                 if (!s.equals(compat)) {
                     FileData.add(s);
-                    System.out.println("readed from file: " + s);
+                }
+                else{
+                    String [] splite= s.split(",");
+                    id=splite[0];
+                    value=Double.parseDouble(splite[2]);
                 }
             }
             biSummary.close();
             PrintWriter pr = new PrintWriter(new FileWriter(path));
-            //FileWriter withoutAppend= new FileWriter(path);
-            //PrintWriter pr= new PrintWriter(withoutAppend);
             for (int i = 0; i < FileData.size(); i++) {
 
-                pr.println(FileData.get(i).toString());
-                System.out.println("writed" + FileData.get(i));
+                pr.println(FileData.get(i));
             }
             pr.close();
+
+            List<String> FileData2 = new ArrayList<String>();
+            String s2 = "";
+                while ((s = brSummary.readLine()) != null) {
+                    String [] splite= s.split(",");
+                    if (splite[0].equals(id)) {
+                        double val= Double.parseDouble(splite[3]);
+                        invoiceSummary in= new invoiceSummary();
+                        in.setBillNumber(splite[0]);
+                        in.setDate(splite[1]);
+                        in.setCustomerName(splite[2]);
+                        in.setBill_Total(value-val);
+                        s=in.toString2();
+                        FileData.add(s);
+                    }
+                    else {
+                        FileData.add(s);
+                    }
+                }
+                brSummary.close();
+            PrintWriter prr = new PrintWriter(new FileWriter(path));
+            for (int i = 0; i < FileData.size(); i++) {
+                prr.println(FileData.get(i));
+            }
+            prr.close();
 
 
         } catch (Exception e) {
@@ -122,7 +149,6 @@ public class controller {
 
     public void deleteSummaryItem(invoiceSummary sum) {
         String compat = sum.toString2();
-        //System.out.println(compat);
         String selectedId = sum.getBillNumber();
         List<String> FileData = new ArrayList<String>();
         String s = "";
@@ -130,20 +156,17 @@ public class controller {
             BufferedReader bufferedReader= new BufferedReader(new FileReader(summaryPath));
             while ((s = bufferedReader.readLine()) != null) {
                 if (s.equals(compat)) {
-                    System.out.println("c1: "+compat);
-                    System.out.println("f2: "+s);
+
                 }
                 else{
-                    FileData.add(s);
-                    System.out.println("c: "+compat);
-                     System.out.println("f: "+s);
+                 FileData.add(s);
                 }
             }
             bufferedReader.close();
             PrintWriter pr = new PrintWriter(new FileWriter(summaryPath));
             for (int i = 0; i < FileData.size(); i++) {
 
-                pr.println(FileData.get(i).toString());
+                pr.println(FileData.get(i));
             }
             pr.close();
             deleteItemById(selectedId);
@@ -151,8 +174,28 @@ public class controller {
 
         } catch (Exception e) {
         }
+        System.out.println("selected id:"+selectedId);
     }
+    void deleteItemById(String id) {
+        List<String> FileData = new ArrayList<String>();
+        String s = "";
+        try {
+            while ((s = biSummary.readLine()) != null) {
+                String [] splite= s.split(",");
+                if (!splite[0].equals(id)) {
+                    FileData.add(s);
+                }
+            }
+            biSummary.close();
+            PrintWriter pr = new PrintWriter(new FileWriter(path));
+            for (int i = 0; i < FileData.size(); i++) {
+                pr.println(FileData.get(i));
+            }
+            pr.close();
+        } catch (Exception e) {
+        }
 
+    }
 
       public  void updateTotal(String id,double total){
           System.out.println("hi2");
@@ -190,26 +233,7 @@ public class controller {
           }
 
       }
-    void deleteItemById(String id) {
-        List<String> FileData = new ArrayList<String>();
-        String s = "";
-        try {
-            while ((s = biSummary.readLine()) != null) {
-                String [] splite= s.split(",");
-                if (!splite[0].equals(id)) {
-                    FileData.add(s);
-                }
-            }
-            biSummary.close();
-            PrintWriter pr = new PrintWriter(new FileWriter(path));
-            for (int i = 0; i < FileData.size(); i++) {
-                pr.println(FileData.get(i).toString());
-            }
-            pr.close();
-        } catch (Exception e) {
-        }
 
-    }
     public void saveNewItem(invoiceData d, String id, Double total) {
         String s = d.tostring2();
         //System.out.println(s);
@@ -234,13 +258,12 @@ public class controller {
             PrintWriter ps = new PrintWriter(new FileWriter(summaryPath, true));
             for(int i =0;i<ind.size();i++){
                 s=ind.get(i).tostring2();
-
             pr.println(s);
-
-
         }
-            ps.println(ins.toString2());
             pr.close();
+            System.out.println(ins.getTotalBill());
+            ps.println(ins.toString2());
+            ps.close();
         }
             catch (Exception e) {
         }

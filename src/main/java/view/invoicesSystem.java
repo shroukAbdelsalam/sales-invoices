@@ -64,7 +64,6 @@ public class invoicesSystem extends javax.swing.JFrame {
         SaveNewInvoice = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         createNewTable = new javax.swing.JTable();
-        createNewTable.setVisible(true);
         jSeparator1 = new javax.swing.JSeparator();
         lbill_number = new javax.swing.JLabel();
         lcustomer_name = new javax.swing.JLabel();
@@ -77,7 +76,6 @@ public class invoicesSystem extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addMouseListener(new java.awt.event.MouseAdapter() {
@@ -217,9 +215,6 @@ public class invoicesSystem extends javax.swing.JFrame {
             }
         });
         jMenu1.add(jMenuItem1);
-
-        jMenuItem2.setText("Save File");
-        jMenu1.add(jMenuItem2);
 
         jMenuBar1.add(jMenu1);
 
@@ -382,6 +377,7 @@ public class invoicesSystem extends javax.swing.JFrame {
         try {
             DefaultTableModel model = (DefaultTableModel) summaryTable.getModel();
             model.removeRow(SelectedRowS);
+            System.out.println("selectedRow"+SelectedRowS);
             summaryTable.addNotify();
             invoiceSummary in = new invoiceSummary();
             in.setBillNumber(summaryTable.getValueAt(SelectedRowS, 0).toString());
@@ -392,6 +388,8 @@ public class invoicesSystem extends javax.swing.JFrame {
             LoadFile();
         }
         catch (Exception e){}
+        dataTable.repaint();
+        dataTable.addNotify();
         
 
     }//GEN-LAST:event_deleteSelectedBill
@@ -451,23 +449,34 @@ public class invoicesSystem extends javax.swing.JFrame {
         List<invoiceData>billData = new ArrayList<invoiceData>() ;
         invoiceSummary billSummary= new invoiceSummary();
         billSummary.setCustomerName(iCustomerName.getText());
-        billSummary.setDate(iBillDate.getText());
-        billSummary.setBillNumber(iBillNumber.getText());
-        DefaultTableModel model=(DefaultTableModel)createNewTable.getModel();
 
-        for(int i=0;i<model.getRowCount();i++){
-//            if(createNewTable.getValueAt(i,1).toString()!=null||createNewTable.getValueAt(i,2).toString()!=null
-//                    || iBillNumber.getText().toString()!=null){
+        billSummary.setDate(iCustomerName.getText());
+        billSummary.setBillNumber(iBillNumber.getText());
+        billSummary.setBill_Total(total);
+        DefaultTableModel model=(DefaultTableModel)createNewTable.getModel();
+           for(int i=0;i<model.getRowCount();i++){
+//
+               invoiceData obj= new invoiceData();
             total+=Double.parseDouble(createNewTable.getValueAt(i,4).toString());
-            System.out.println(total);
-            billData.get(i).setBill(iBillNumber.getText());
-            billData.get(i).setProductName(createNewTable.getValueAt(i,1).toString());
-            billData.get(i).setPrice(Double.parseDouble(createNewTable.getValueAt(i,2).toString()));
-            billData.get(i).setCount(Integer.parseInt(createNewTable.getValueAt(i,3).toString()));
-   //     }
+            obj.setBill(iBillNumber.getText());
+            obj.setProductName(createNewTable.getValueAt(i,1).toString());
+            obj.setPrice(Double.parseDouble(createNewTable.getValueAt(i,2).toString()));
+            obj.setCount(Integer.parseInt(createNewTable.getValueAt(i,3).toString()));
+            billData.add(obj);
+
+   //    }
     }
+        billSummary.setBill_Total(total);
         ltotal.setText(String.valueOf(total));
         con.saveNewBill(billData,billSummary);
+        iCustomerName.setText("");
+        iBillNumber.setText("");
+        iBillDate.setText("");
+        billTotal.setText("");
+        total=0.0;
+        createNewTable.repaint();
+        createNewTable.addNotify();
+
 
 
 
@@ -558,7 +567,6 @@ public class invoicesSystem extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;

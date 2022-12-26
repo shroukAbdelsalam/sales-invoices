@@ -69,7 +69,7 @@ public class invoiceSummary {
         return "invoiceSummary{" + "billNumber=" + billNumber + ", date=" + date + ", customerName=" + customerName + '}';
     }
     public String toString2(){
-        return billNumber+","+date+","+customerName+","+bill_Total;
+        return billNumber+","+date+","+customerName+","+bill_Total.toString();
     }
 
     public List <invoiceData> getBills() {
