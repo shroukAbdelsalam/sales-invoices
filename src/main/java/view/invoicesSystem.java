@@ -375,21 +375,22 @@ public class invoicesSystem extends javax.swing.JFrame {
     private void deleteSelectedBill(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteSelectedBill
         // TODO add your handling code here:
         try {
+
             DefaultTableModel model = (DefaultTableModel) summaryTable.getModel();
-            model.removeRow(SelectedRowS);
+                int row=SelectedRowS;
             System.out.println("selectedRow"+SelectedRowS);
             summaryTable.addNotify();
             invoiceSummary in = new invoiceSummary();
-            in.setBillNumber(summaryTable.getValueAt(SelectedRowS, 0).toString());
-            in.setCustomerName(summaryTable.getValueAt(SelectedRowS, 2).toString());
-            in.setDate(summaryTable.getValueAt(SelectedRowS, 1).toString());
+            in.setBillNumber(summaryTable.getValueAt(row, 0).toString());
+            in.setCustomerName(summaryTable.getValueAt(row, 2).toString());
+            in.setDate(summaryTable.getValueAt(row, 1).toString());
             in.setBill_Total(Double.parseDouble(summaryTable.getValueAt(SelectedRowS, 3).toString()));
             con.deleteSummaryItem(in);
+            model.removeRow(row);
             LoadFile();
         }
         catch (Exception e){}
-        dataTable.repaint();
-        dataTable.addNotify();
+        LoadFile();
         
 
     }//GEN-LAST:event_deleteSelectedBill
@@ -455,7 +456,7 @@ public class invoicesSystem extends javax.swing.JFrame {
         billSummary.setBill_Total(total);
         DefaultTableModel model=(DefaultTableModel)createNewTable.getModel();
            for(int i=0;i<model.getRowCount();i++){
-//
+               System.out.println("rowCount="+model.getRowCount());
                invoiceData obj= new invoiceData();
             total+=Double.parseDouble(createNewTable.getValueAt(i,4).toString());
             obj.setBill(iBillNumber.getText());
@@ -464,7 +465,6 @@ public class invoicesSystem extends javax.swing.JFrame {
             obj.setCount(Integer.parseInt(createNewTable.getValueAt(i,3).toString()));
             billData.add(obj);
 
-   //    }
     }
         billSummary.setBill_Total(total);
         ltotal.setText(String.valueOf(total));
@@ -474,8 +474,16 @@ public class invoicesSystem extends javax.swing.JFrame {
         iBillDate.setText("");
         billTotal.setText("");
         total=0.0;
-        createNewTable.repaint();
-        createNewTable.addNotify();
+        for (int i=0;i<model.getRowCount();i++){
+            model.removeRow(i);
+        }
+        LoadFile();
+        DefaultTableModel model2 = (DefaultTableModel) dataTable.getModel();
+
+        for (int row = 0; row < dataTable.getRowCount(); row++) {
+            model2.removeRow(row);
+        }
+
 
 
 
@@ -494,19 +502,21 @@ public class invoicesSystem extends javax.swing.JFrame {
 
     private void deleteItemBUTTON(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteItemBUTTON
         // TODO add your handling code here:
-
+   int row=selectedRow;
+   System.out.println(row);
         DefaultTableModel model=(DefaultTableModel)dataTable.getModel();
-        model.removeRow(selectedRow);
+        model.removeRow(row);
         dataTable.addNotify();
         invoiceData in= new invoiceData();
-        in.setPrice(Double.parseDouble(dataTable.getValueAt(selectedRow,2).toString()));
-        in.setCount(Integer.parseInt(dataTable.getValueAt(selectedRow,3).toString()));
-        in.setProductName(dataTable.getValueAt(selectedRow,1).toString());
+        in.setPrice(Double.parseDouble(dataTable.getValueAt(row,2).toString()));
+        in.setCount(Integer.parseInt(dataTable.getValueAt(row,3).toString()));
+        in.setProductName(dataTable.getValueAt(row,1).toString());
         in.setBill(billaNumber.getText());
         con.deleteItemf(in);
+        dataTable.repaint();
 
         }
-        //dataTable.repaint();
+
 //GEN-LAST:event_deleteItemBUTTON
 
 
